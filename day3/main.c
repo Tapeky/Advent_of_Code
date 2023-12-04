@@ -6,12 +6,13 @@
 /*   By: tsadouk <tsadouk@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 13:05:27 by tsadouk           #+#    #+#             */
-/*   Updated: 2023/12/04 13:49:08 by tsadouk          ###   ########.fr       */
+/*   Updated: 2023/12/04 15:49:28 by tsadouk          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <stdio.h>
+#include <string.h>
 
 int	ft_atoi(const char *str)
 {
@@ -45,43 +46,50 @@ int is_number(char c)
 	return (c >= '0' && c <= '9');
 }
 
-int	check_hitbox(char **input, int start, int end, int pos)
+int check_hitbox(char **input, int start, int end, int pos)
 {
-	int x = start - 1;
 	int y = pos - 1;
 	int index = 0;
 
 	while (index < 3)
 	{
-		while (input[y][x] != '\n')
+		int x = start - 1;
+		while (x <= end + 1)
 		{
-			if (input[y][x] == input[pos][start])
-				x += (end - start) + 1;
-			else if (input[y][x] != '.')
-				return (1);
+			printf("%c", input[y][x]);
+			if ((!is_number(input[y][x])) && (input[y][x] != '.'))
+			{
+				printf(" %c, aaa", input[y][x]);
+				return 1;
+			}		
 			x++;
 		}
 		y++;
 		index++;
 	}
-	return (0);
+	return 0;
 }
 
 int add_number(char **input, int start, int end, int pos)
 {
-	char	*number = 0;
+	//printf("Je suis dans add_number\n");
+	char	*number = NULL;
 	int		sum = 0;
 
-	number = ft_calloc(end - start + 1, sizeof(char));
+	number = (char *)malloc((end - start + 2) * sizeof(char));
 	if (!number)
-		return (0);
-	while (start < end)
+		return 0;
+	int i = 0;
+	for (int j = start; j <= end; j++)
 	{
-		number[start] = input[pos][start];
-		start++;
+		number[i] = input[pos][j];
+		i++;
 	}
+	number[i] = '\0';
 	sum = ft_atoi(number);
-	return (sum);
+	//printf("sum = %d      ", sum);
+	free(number);
+	return sum;
 }
 
 
@@ -92,15 +100,14 @@ int main(void)
 	int		j;
 	int		start;
 	int		end;
-	int		sum;
+	int		sum = 0;
 
-    input = (char **)malloc(sizeof(char *) * 10);
+    input = (char **)malloc(sizeof(char *) * 150);
     if (!input)
         return (0);
-    input[10] = '\0';
-    i = 0;
-
+    input[150] = '\0';
 	// On remplis notre tableau avec toutes les lignes de l'entrée standard
+	i = 0;
 	while (input[i] = get_next_line(0)) 
 		i++;
 	i = 0;
@@ -116,14 +123,16 @@ int main(void)
 				start = j;
 				while (is_number(input[i][j]))
 					j++;
-				end = j;
+				end = j - 1;
+				printf("\n start = %d   end = %d\n", start, end);
 				if (check_hitbox(input, start, end, i))
 					sum += add_number(input, start, end, i);
 			}
 			j++;
 		}
+		//printf("%s", input[i]);
 		i++;
 	}
-	printf("Part 1 : %d\n", sum);
+	printf("\nPart 1 : %d\n", sum);
     return (0);
 }
